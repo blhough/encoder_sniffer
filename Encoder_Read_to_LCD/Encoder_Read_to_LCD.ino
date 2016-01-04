@@ -83,7 +83,7 @@ void printNumber( long n )
   }
 
 
-  for ( size_t i = 0; i < NUM_LONG_DIGITS; i++ ) // for each digit upto maximum number of digits
+  for ( size_t i = 0 ; i < NUM_LONG_DIGITS ; i++ ) // for each digit upto maximum number of digits
   {
     if (n == 0 ) // if all digits have been printed
     {
@@ -101,16 +101,13 @@ void printNumber( long n )
         }
       }
 
-      byte stopIndexTemp = i; // remember where the digits end
-
-      while( i < stopIndex ) // if oldPos was longer, clear upto last digit of oldPos
+      for ( size_t j = i + 1 ; j <= stopIndex ; j++ ) // if oldPos was longer, clear upto last digit of oldPos
       {
-        i++;
-        lcd.setCursor( NUM_LONG_DIGITS - i  , 1 );
+        lcd.setCursor( NUM_LONG_DIGITS - j  , 1 );
         lcd.print(' ');
       }
 
-      stopIndex = stopIndexTemp; // remember where current position ends
+      stopIndex = i; // remember where current position ends
       break; // break for loop
     }
 
