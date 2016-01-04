@@ -16,9 +16,9 @@
 // include the library code:
 #include <Wire.h>
 #include <LiquidTWI.h>
-#include <Encoder.h>
+//#include <Encoder.h>
 
-Encoder myEnc( 11, 12 );
+//Encoder myEnc( 11, 12 );
 
 // Connect via i2c, default address #0 (A0-A2 not jumpered)
 LiquidTWI lcd( 0 );
@@ -39,14 +39,15 @@ void loop()
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor( 0, 1 );
-  
-  long Pos=myEnc.read();
-  
-  if ( oldPos != Pos )
-  lcd.print("                ");
 
-  
-  lcd.print( Pos );
-  oldPos = Pos;
+  long pos = 98674687;
+
+  if ( oldPos != pos )
+  {
+    lcd.print("                ");
+  }
+
+  lcd.print( pos );
+  oldPos = pos;
 }
 
