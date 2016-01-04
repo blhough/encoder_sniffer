@@ -20,13 +20,24 @@
 
 Encoder myEnc( 11, 12 );
 
+// Connect via i2c, default address #0 (A0-A2 not jumpered)
+LiquidTWI lcd( 0 );
+
+
+
 void printNumber( long n );
 
 
 
+const size_t NUM_LONG_DIGITS = 10;
+const byte INVALID_DIGIT = 10;
 
-// Connect via i2c, default address #0 (A0-A2 not jumpered)
-LiquidTWI lcd( 0 );
+long oldPos = 0; //previous encoder position
+byte pos[10]; //current encoder position
+bool isNegative = false; //if encoder position is negaitve
+byte stopIndex = 0; //the index to stop printing on
+
+
 
 void setup() 
 {
@@ -34,117 +45,88 @@ void setup()
   lcd.begin( 16, 2 );
   
   // Print a message to the LCD.
-  lcd.print( "Lin Encrd Pos:" );
+  lcd.print( "Encoder Pos:" );
 }
 
-long oldPos = 0;
-//long pos;
-byte pos[10];
-bool wasNegative = false;
-byte stopPos = 0;
+
 
 void loop() 
 {
-  // set the cursor to column 0, line 1
-  // (note: line 1 is the second row, since counting begins with 0):
-  lcd.setCursor( 0, 1 );
-
   long pos=myEnc.read();
 
-  // if ( oldPos != pos )
-  // {
-  //   lcd.print("                ");
-  //   lcd.setCursor( 0, 1 );
-  // }
-
-  //printNumberFast( 488 );
-
-  //lcd.print( pos );
   printNumber( pos );
-
-  oldPos = pos;
 }
-
-
-
 
 
 
 void printNumber( long n )
 {
-  //byte count = 0;
+  if ( oldPos == n ) //no change needed
+  {
+    return;
+  }
 
-  // if( !( ( n < 0 ) == wasNegative ) )
-  // {
-  //   lcd.setCursor( 0  , 1 );
+  oldPos = n;
 
-  //   if ( wasNegative )
-  //   {
-  //     lcd.print('-');
-  //   }
-  //   else
-  //   {
-  //     lcd.print(' ');
-  //   }
 
-  //   wasNegative = !wasNegative;
-  // }
+  bool  signChange = false;
 
-  if (n < 0)
+  if( !( ( n < 0 ) == isNegative ) ) //if sign change
+  {
+    isNegative = !isNegative; //flip sign
+    signChange = true; // remember change
+  }
+
+  if ( isNegative ) //if n is negative, make it positve
   {             
     n = -n;
-    wasNegative = true;
-  }
-  else
-  {
-    wasNegative = false;
   }
 
-  for ( int i = 0; i < 10; i++ )
-  {
-    byte m = n % 10;
 
-    if (pos[ i ] != m )
+  for ( size_t i = 0; i < NUM_LONG_DIGITS; i++ ) // for each digit upto maximum number of digits
+  {
+    if (n == 0 ) // if all digits have been printed
+    {
+      if ( signChange || ( i != stopIndex) ) // if sign changed or number of digits changed
+      {
+        lcd.setCursor( NUM_LONG_DIGITS - i  , 1 );
+
+        if ( isNegative )
+        {
+          lcd.print('-');
+        }
+        else
+        {
+          lcd.print(' ');
+        }
+      }
+
+      byte stopIndexTemp = i; // remember where the digits end
+
+      while( i < stopIndex ) // if oldPos was longer, clear upto last digit of oldPos
+      {
+        i++;
+        lcd.setCursor( NUM_LONG_DIGITS - i  , 1 );
+        lcd.print(' ');
+      }
+
+      stopIndex = stopIndexTemp; // remember where current position ends
+      break; // break for loop
+    }
+
+    byte m = n % 10; //extract least significant digit
+
+    if (pos[ i ] != m ) // if the digit has changed, print new digit
     {
       pos[ i ] = m;
-      lcd.setCursor( 10 - i  , 1 );
+      lcd.setCursor( NUM_LONG_DIGITS - i  , 1 );
       lcd.print(m);
     }
     else
     {
-      pos[ i ] = 10;
+      pos[ i ] = INVALID_DIGIT; //invalidates the digit to ensure it is printed next time
     }
 
-    n /= 10;
-
-    if (n == 0 )
-    {
-      i++;
-      lcd.setCursor( 10 - i  , 1 );
-
-      if ( wasNegative )
-      {
-        lcd.print('-');
-      }
-      else
-      {
-        lcd.print(' ');
-      }
-
-
-      byte stopTemp = i;
-
-      while( i < stopPos )
-      {
-        i++;
-        lcd.setCursor( 10 - i  , 1 );
-        lcd.print(' ');
-      }
-
-      stopPos = stopTemp;
-      break;
-    }
+    n /= 10; // truncate least significant digit
   }
-
-
 }
