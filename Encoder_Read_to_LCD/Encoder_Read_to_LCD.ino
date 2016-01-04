@@ -20,6 +20,11 @@
 
 //Encoder myEnc( 11, 12 );
 
+void printNumberFast( unsigned long n );
+
+
+
+
 // Connect via i2c, default address #0 (A0-A2 not jumpered)
 LiquidTWI lcd( 0 );
 
@@ -33,6 +38,7 @@ void setup()
 }
 
 long oldPos = 0;
+long pos = random( 100000 , 10000000);
 
 void loop() 
 {
@@ -40,14 +46,40 @@ void loop()
   // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor( 0, 1 );
 
-  long pos = 98674687;
+  //pos -= random ( 4000 );
 
-  if ( oldPos != pos )
-  {
-    lcd.print("                ");
-  }
+  // if ( oldPos != pos )
+  // {
+  //   lcd.print("                ");
+  // }
 
-  lcd.print( pos );
+  printNumberFast( 488 );
   oldPos = pos;
 }
 
+
+
+void printNumberFast( unsigned long n )
+{
+
+  if (n < 0) 
+  {
+    lcd.print('-');
+    n = -n;
+  }
+
+  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+  char *str = &buf[sizeof(buf) - 1];
+
+  *str = '\0';
+
+
+  do {
+    unsigned long m = n;
+    n /= 10;
+    char c = m - 10 * n;
+    *--str = c < 10 ? c + '0' : c + 'A' - 10;
+  } while(n);
+
+  lcd.write(str);
+}
