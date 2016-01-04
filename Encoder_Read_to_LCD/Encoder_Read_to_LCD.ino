@@ -90,6 +90,10 @@ void printNumber( long n )
     wasNegative = !wasNegative;
   }
 
+  if (n < 0)
+  {             
+    n = -n;
+  }
 
   for ( int i = 0; i < 10; i++ )
   {
