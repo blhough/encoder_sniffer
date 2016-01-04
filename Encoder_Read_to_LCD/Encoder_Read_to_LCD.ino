@@ -74,25 +74,30 @@ void printNumber( long n )
 {
   //byte count = 0;
 
-  if( !( ( n < 0 ) == wasNegative ) )
-  {
-    lcd.setCursor( 0  , 1 );
+  // if( !( ( n < 0 ) == wasNegative ) )
+  // {
+  //   lcd.setCursor( 0  , 1 );
 
-    if ( wasNegative )
-    {
-      lcd.print('-');
-    }
-    else
-    {
-      lcd.print(' ');
-    }
+  //   if ( wasNegative )
+  //   {
+  //     lcd.print('-');
+  //   }
+  //   else
+  //   {
+  //     lcd.print(' ');
+  //   }
 
-    wasNegative = !wasNegative;
-  }
+  //   wasNegative = !wasNegative;
+  // }
 
   if (n < 0)
   {             
     n = -n;
+    wasNegative = true;
+  }
+  else
+  {
+    wasNegative = false;
   }
 
   for ( int i = 0; i < 10; i++ )
@@ -114,6 +119,19 @@ void printNumber( long n )
 
     if (n == 0 )
     {
+      i++;
+      lcd.setCursor( 10 - i  , 1 );
+
+      if ( wasNegative )
+      {
+        lcd.print('-');
+      }
+      else
+      {
+        lcd.print(' ');
+      }
+
+
       byte stopTemp = i;
 
       while( i < stopPos )
