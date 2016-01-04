@@ -105,6 +105,10 @@ void printNumber( long n )
       lcd.setCursor( 10 - i  , 1 );
       lcd.print(m);
     }
+    else
+    {
+      pos[ i ] = 10;
+    }
 
     n /= 10;
 
@@ -120,6 +124,7 @@ void printNumber( long n )
       }
 
       stopPos = stopTemp;
+      break;
     }
   }
 
