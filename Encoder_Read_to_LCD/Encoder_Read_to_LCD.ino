@@ -20,7 +20,7 @@
 
 Encoder myEnc( 11, 12 );
 
-void printNumberDec( long n );
+void printNumber( long n );
 
 
 
@@ -38,7 +38,10 @@ void setup()
 }
 
 long oldPos = 0;
-long pos;
+//long pos;
+byte pos[10];
+bool wasNegative = false;
+byte stopPos = 0;
 
 void loop() 
 {
@@ -46,16 +49,18 @@ void loop()
   // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor( 0, 1 );
 
-  pos=myEnc.read();
+  long pos=myEnc.read();
 
-  if ( oldPos != pos )
-  {
-    lcd.print("                ");
-    lcd.setCursor( 0, 1 );
-  }
+  // if ( oldPos != pos )
+  // {
+  //   lcd.print("                ");
+  //   lcd.setCursor( 0, 1 );
+  // }
 
   //printNumberFast( 488 );
-  lcd.print( pos );
+
+  //lcd.print( pos );
+  printNumber( pos );
 
   oldPos = pos;
 }
@@ -63,43 +68,56 @@ void loop()
 
 
 
-void inline divmod10_v2(uint32_t n,uint32_t *div,uint32_t *mod) {
-  uint32_t p,q;
-  /* Using 32.16 fixed point representation p.q */
-  /* p.q = (n+1)/512 */
-  q = (n&0xFFFF) + 1;
-  p = (n>>16);
-  /* p.q = 51*(n+1)/512 */
-  q = 13107*q;
-  p = 13107*p;
-  /* p.q = (1+1/2^8+1/2^16+1/2^24)*51*(n+1)/512 */
-  q = q + (q>>16) + (p&0xFFFF);
-  p = p + (p>>16) + (q>>16);
-  /* divide by 2 */
-  p = p>>1;
-  *div = p;
-  *mod = n-10*p;
-}
 
 
-
-
-
-
-void printNumberDec( long n )
+void printNumber( long n )
 {
-        uint8_t buf[11], *p;
-        uint32_t digit;
-        uint32_t m = n;
-  //uint32_t t1, t2, c3333=0x3333;
+  //byte count = 0;
 
-        p = buf + (sizeof(buf));
-        do {
-    divmod10_v2( m, &m, &digit);
-    //divmod10_asm(n, digit, t1, t2, c3333);
-                *--p = digit + '0';
-        } while (n);
+  if( !( ( n < 0 ) == wasNegative ) )
+  {
+    lcd.setCursor( 0  , 1 );
+
+    if ( wasNegative )
+    {
+      lcd.print('-');
+    }
+    else
+    {
+      lcd.print(' ');
+    }
+
+    wasNegative = !wasNegative;
+  }
 
 
-        lcd.print(*p);
+  for ( int i = 0; i < 10; i++ )
+  {
+    byte m = n % 10;
+
+    if (pos[ i ] != m )
+    {
+      pos[ i ] = m;
+      lcd.setCursor( 10 - i  , 1 );
+      lcd.print(m);
+    }
+
+    n /= 10;
+
+    if (n == 0 )
+    {
+      byte stopTemp = i;
+
+      while( i < stopPos )
+      {
+        i++;
+        lcd.setCursor( 10 - i  , 1 );
+        lcd.print(' ');
+      }
+
+      stopPos = stopTemp;
+    }
+  }
+
+
 }
