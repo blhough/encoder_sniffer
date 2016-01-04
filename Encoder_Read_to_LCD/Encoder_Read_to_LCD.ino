@@ -20,7 +20,7 @@
 
 Encoder myEnc( 11, 12 );
 
-void printNumberFast( unsigned long n );
+void printNumberDec( long n );
 
 
 
@@ -56,32 +56,50 @@ void loop()
 
   //printNumberFast( 488 );
   lcd.print( pos );
+
   oldPos = pos;
 }
 
 
 
-void printNumberFast( unsigned long n )
+
+void inline divmod10_v2(uint32_t n,uint32_t *div,uint32_t *mod) {
+  uint32_t p,q;
+  /* Using 32.16 fixed point representation p.q */
+  /* p.q = (n+1)/512 */
+  q = (n&0xFFFF) + 1;
+  p = (n>>16);
+  /* p.q = 51*(n+1)/512 */
+  q = 13107*q;
+  p = 13107*p;
+  /* p.q = (1+1/2^8+1/2^16+1/2^24)*51*(n+1)/512 */
+  q = q + (q>>16) + (p&0xFFFF);
+  p = p + (p>>16) + (q>>16);
+  /* divide by 2 */
+  p = p>>1;
+  *div = p;
+  *mod = n-10*p;
+}
+
+
+
+
+
+
+void printNumberDec( long n )
 {
+        uint8_t buf[11], *p;
+        uint32_t digit;
+        uint32_t m = n;
+  //uint32_t t1, t2, c3333=0x3333;
 
-  if (n < 0) 
-  {
-    lcd.print('-');
-    n = -n;
-  }
-
-  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
-  char *str = &buf[sizeof(buf) - 1];
-
-  *str = '\0';
+        p = buf + (sizeof(buf));
+        do {
+    divmod10_v2( m, &m, &digit);
+    //divmod10_asm(n, digit, t1, t2, c3333);
+                *--p = digit + '0';
+        } while (n);
 
 
-  do {
-    unsigned long m = n;
-    n /= 10;
-    char c = m - 10 * n;
-    *--str = c < 10 ? c + '0' : c + 'A' - 10;
-  } while(n);
-
-  lcd.write(str);
+        lcd.print(*p);
 }
