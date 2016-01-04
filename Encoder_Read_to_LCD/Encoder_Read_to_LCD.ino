@@ -16,9 +16,9 @@
 // include the library code:
 #include <Wire.h>
 #include <LiquidTWI.h>
-//#include <Encoder.h>
+#include <Encoder.h>
 
-//Encoder myEnc( 11, 12 );
+Encoder myEnc( 11, 12 );
 
 void printNumberFast( unsigned long n );
 
@@ -38,7 +38,7 @@ void setup()
 }
 
 long oldPos = 0;
-long pos = random( 100000 , 10000000);
+long pos;
 
 void loop() 
 {
@@ -46,14 +46,16 @@ void loop()
   // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor( 0, 1 );
 
-  //pos -= random ( 4000 );
+  pos=myEnc.read();
 
-  // if ( oldPos != pos )
-  // {
-  //   lcd.print("                ");
-  // }
+  if ( oldPos != pos )
+  {
+    lcd.print("                ");
+    lcd.setCursor( 0, 1 );
+  }
 
-  printNumberFast( 488 );
+  //printNumberFast( 488 );
+  lcd.print( pos );
   oldPos = pos;
 }
 
