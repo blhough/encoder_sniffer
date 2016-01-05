@@ -17,6 +17,8 @@
 #include <Wire.h>
 #include <LiquidTWI.h>
 #include <Encoder.h>
+#include <elapsedMillis.h>
+
 
 Encoder myEnc( 11, 12 );
 
@@ -26,7 +28,7 @@ LiquidTWI lcd( 0 );
 
 
 void printNumber( long n );
-
+void controlBacklight( long pos );
 
 
 const size_t NUM_LONG_DIGITS = 10;
@@ -36,7 +38,8 @@ long oldPos = 0; //previous encoder position
 byte pos[10]; //current encoder position
 bool isNegative = false; //if encoder position is negaitve
 byte stopIndex = 0; //the index to stop printing on
-
+elapsedMillis timer = 0;
+bool isBacklightOn = false;
 
 
 void setup() 
@@ -46,6 +49,8 @@ void setup()
   
   // Print a message to the LCD.
   lcd.print( "Encoder Pos:" );
+
+  pinMode(20, OUTPUT);
 }
 
 
@@ -54,7 +59,10 @@ void loop()
 {
   long pos=myEnc.read();
 
+  controlBacklight( pos );
+
   printNumber( pos );
+
 }
 
 
@@ -124,5 +132,28 @@ void printNumber( long n )
     }
 
     n /= 10; // truncate least significant digit
+  }
+}
+
+
+void controlBacklight( long pos )
+{
+  if ( oldPos == pos )
+  {
+    if ( !isBacklightOn && timer > 1000 )// if stable for over 1 second and not already on
+    {
+      digitalWrite( 20, LOW ); // turn on led
+      isBacklightOn = true;
+    }
+  }
+  else
+  {
+    if ( isBacklightOn )
+    {
+      digitalWrite( 20, HIGH ); 
+      isBacklightOn = false;
+    }
+    
+    timer = 0;
   }
 }
