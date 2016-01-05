@@ -89,6 +89,8 @@ void printNumber( long n )
     {
       if ( signChange || ( i != stopIndex) ) // if sign changed or number of digits changed
       {
+
+        pos[ i ] = INVALID_DIGIT; //invalidates the digit to ensure it is printed next time it is needed
         lcd.setCursor( NUM_LONG_DIGITS - i  , 1 );
 
         if ( isNegative )
@@ -103,6 +105,7 @@ void printNumber( long n )
 
       for ( size_t j = i + 1 ; j <= stopIndex ; j++ ) // if oldPos was longer, clear upto last digit of oldPos
       {
+        pos[ j ] = INVALID_DIGIT; //invalidates the digit to ensure it is printed next time it is needed
         lcd.setCursor( NUM_LONG_DIGITS - j  , 1 );
         lcd.print(' ');
       }
@@ -118,10 +121,6 @@ void printNumber( long n )
       pos[ i ] = m;
       lcd.setCursor( NUM_LONG_DIGITS - i  , 1 );
       lcd.print(m);
-    }
-    else
-    {
-      pos[ i ] = INVALID_DIGIT; //invalidates the digit to ensure it is printed next time
     }
 
     n /= 10; // truncate least significant digit
