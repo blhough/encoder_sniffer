@@ -37,7 +37,7 @@ elapsedMillis timer = 0;
 bool isBacklightOn = false;
 
 
-Encoder myEnc( 11, 12 );
+Encoder myEnc( 15, 16 );
 
 // Connect via i2c, default address #0 (A0-A2 not jumpered)
 LiquidTWI lcd( 0 );
