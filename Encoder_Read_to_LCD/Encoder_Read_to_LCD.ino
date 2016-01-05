@@ -20,12 +20,6 @@
 #include <elapsedMillis.h>
 
 
-Encoder myEnc( 11, 12 );
-
-// Connect via i2c, default address #0 (A0-A2 not jumpered)
-LiquidTWI lcd( 0 );
-
-
 
 void printNumber( long n );
 void controlBacklight( long pos );
@@ -33,6 +27,7 @@ void controlBacklight( long pos );
 
 const size_t NUM_LONG_DIGITS = 10;
 const byte INVALID_DIGIT = 10;
+const byte BACKLIGHT_PIN = 20;
 
 long oldPos = 0; //previous encoder position
 byte pos[10]; //current encoder position
@@ -40,6 +35,13 @@ bool isNegative = false; //if encoder position is negaitve
 byte stopIndex = 0; //the index to stop printing on
 elapsedMillis timer = 0;
 bool isBacklightOn = false;
+
+
+Encoder myEnc( 11, 12 );
+
+// Connect via i2c, default address #0 (A0-A2 not jumpered)
+LiquidTWI lcd( 0 );
+
 
 
 void setup() 
@@ -50,7 +52,7 @@ void setup()
   // Print a message to the LCD.
   lcd.print( "Encoder Pos:" );
 
-  pinMode(20, OUTPUT);
+  pinMode(BACKLIGHT_PIN, OUTPUT); // initialize backlight pin for output
 }
 
 
@@ -142,7 +144,7 @@ void controlBacklight( long pos )
   {
     if ( !isBacklightOn && timer > 1000 )// if stable for over 1 second and not already on
     {
-      digitalWrite( 20, LOW ); // turn on led
+      digitalWrite( BACKLIGHT_PIN, LOW ); // turn on led
       isBacklightOn = true;
     }
   }
@@ -150,7 +152,7 @@ void controlBacklight( long pos )
   {
     if ( isBacklightOn )
     {
-      digitalWrite( 20, HIGH ); 
+      digitalWrite( BACKLIGHT_PIN, HIGH ); 
       isBacklightOn = false;
     }
     
