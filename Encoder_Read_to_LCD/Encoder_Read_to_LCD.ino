@@ -71,7 +71,7 @@ void printNumber( long n )
 
   bool  signChange = false;
 
-  if( !( ( n < 0 ) == isNegative ) ) //if sign change
+  if( ( n < 0 ) != isNegative ) //if sign change
   {
     isNegative = !isNegative; //flip sign
     signChange = true; // remember change
