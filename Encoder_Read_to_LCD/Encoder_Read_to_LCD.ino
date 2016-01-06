@@ -23,18 +23,22 @@
 
 void printNumber( long n );
 void controlBacklight( long pos );
+void checkButtonPressAndFlipEncoder();
 
 
 const size_t NUM_LONG_DIGITS = 10;
 const byte INVALID_DIGIT = 10;
 const byte BACKLIGHT_PIN = 20;
+const byte BUTTON_PIN = 14;
 
 long oldPos = 0; //previous encoder position
 byte pos[10]; //current encoder position
 bool isNegative = false; //if encoder position is negaitve
+bool isEncoderFlip = false; // if the encoder counts are flipped;
+bool isButtonReleased = true; // if the button is released
 byte stopIndex = 0; //the index to stop printing on
-elapsedMillis timer = 0;
-bool isBacklightOn = false;
+elapsedMillis timer = 0; // timer for encoder settling
+bool isBacklightOn = false; // if backlight is on
 
 
 Encoder myEnc( 15, 16 );
@@ -53,15 +57,24 @@ void setup()
   lcd.print( "Encoder Pos:" );
 
   pinMode(BACKLIGHT_PIN, OUTPUT); // initialize backlight pin for output
+  pinMode(BUTTON_PIN, INPUT_PULLUP ); // initialize button pin for input with pullup
+  delayMicroseconds( 100 ); //just to make sure everything is ready
 }
 
 
 
 void loop() 
 {
-  long pos=myEnc.read();
+  long pos = myEnc.read();
+
+  if ( isEncoderFlip )
+  {
+    pos = -pos;
+  }
 
   controlBacklight( pos );
+
+  checkButtonPressAndFlipEncoder();
 
   printNumber( pos );
 
@@ -138,6 +151,7 @@ void printNumber( long n )
 }
 
 
+
 void controlBacklight( long pos )
 {
   if ( oldPos == pos )
@@ -157,5 +171,24 @@ void controlBacklight( long pos )
     }
     
     timer = 0;
+  }
+}
+
+
+
+void checkButtonPressAndFlipEncoder()
+{
+
+  if ( digitalRead( BUTTON_PIN ) )
+  {
+   if ( isButtonReleased )
+   {
+    isEncoderFlip = !isEncoderFlip;
+    isButtonReleased = false;
+   }
+  }
+  else
+  {
+    isButtonReleased = true;
   }
 }
