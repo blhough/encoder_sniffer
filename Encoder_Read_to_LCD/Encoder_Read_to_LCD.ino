@@ -13,6 +13,12 @@
  * DAT to Analog #4 (pin 18)
 */
 
+
+// This optional setting causes Encoder to use more optimized code,
+// It must be defined before Encoder.h is included.
+#define ENCODER_OPTIMIZE_INTERRUPTS
+
+
 // include the library code:
 #include <Wire.h>
 #include <LiquidTWI.h>
